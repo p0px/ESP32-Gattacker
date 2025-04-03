@@ -1,0 +1,8 @@
+.vscode/*
+Firmware/build/*
+!Firmware/build/*.bin
+!Firmware/build/bootloader/**/*.bin
+!Firmware/build/partition_table
+!Firmware/build/*/**/*.bin
+sdkconfig.old
+Firmware/managed_components/

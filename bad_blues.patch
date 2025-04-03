@@ -1,0 +1,134 @@
+diff --git a/components/bt/host/bluedroid/main/bte_init.c b/components/bt/host/bluedroid/main/bte_init.c
+index 80c4357b6a..479223c8e8 100644
+--- a/components/bt/host/bluedroid/main/bte_init.c
++++ b/components/bt/host/bluedroid/main/bte_init.c
+@@ -367,8 +367,8 @@ bt_status_t BTE_InitStack(void)
+ #endif
+ 
+ #if (defined(GAP_INCLUDED) && GAP_INCLUDED == TRUE)
+-    if (GAP_Init() != BT_STATUS_SUCCESS) {
+-        goto error_exit;
++    if (BT_STATUS_SUCCESS != BT_STATUS_SUCCESS) {
++      goto error_exit;
+     }
+ #endif
+ 
+diff --git a/components/bt/host/bluedroid/stack/btm/btm_ble_gap.c b/components/bt/host/bluedroid/stack/btm/btm_ble_gap.c
+index fb27ba0f69..3c97a40053 100644
+--- a/components/bt/host/bluedroid/stack/btm/btm_ble_gap.c
++++ b/components/bt/host/bluedroid/stack/btm/btm_ble_gap.c
+@@ -1119,7 +1119,7 @@ void BTM_BleConfigConnParams(uint16_t int_min, uint16_t int_max, uint16_t latenc
+     p_value.conn_param.int_max = int_max;
+     p_value.conn_param.latency = latency;
+     p_value.conn_param.sp_tout = timeout;
+-    GAP_BleAttrDBUpdate(GATT_UUID_GAP_PREF_CONN_PARAM, &p_value);
++    //GAP_BleAttrDBUpdate(GATT_UUID_GAP_PREF_CONN_PARAM, &p_value);
+ #else
+     BTM_TRACE_ERROR("%s\n", __func__);
+ #endif
+diff --git a/components/bt/host/bluedroid/stack/gap/gap_api.c b/components/bt/host/bluedroid/stack/gap/gap_api.c
+index 75d5b5d1db..9358d42479 100644
+--- a/components/bt/host/bluedroid/stack/gap/gap_api.c
++++ b/components/bt/host/bluedroid/stack/gap/gap_api.c
+@@ -82,7 +82,7 @@ bt_status_t GAP_Init(void)
+ #endif
+ 
+ #if BLE_INCLUDED == TRUE && GATTS_INCLUDED == TRUE
+-    gap_attr_db_init();
++//gap_attr_db_init();
+ #endif
+ 
+     return BT_STATUS_SUCCESS;
+diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_api.c b/components/bt/host/bluedroid/stack/gatt/gatt_api.c
+index 8d8056f6d0..deec0b7a6c 100644
+--- a/components/bt/host/bluedroid/stack/gatt/gatt_api.c
++++ b/components/bt/host/bluedroid/stack/gatt/gatt_api.c
+@@ -180,25 +180,17 @@ UINT16 GATTS_CreateService (tGATT_IF gatt_if, tBT_UUID *p_svc_uuid,
+         s_hdl = p_list->asgn_range.s_handle;
+         GATT_TRACE_DEBUG ("Service already been created!!\n");
+     } else {
+-        if ( (p_svc_uuid->len == LEN_UUID_16) && (p_svc_uuid->uu.uuid16 == UUID_SERVCLASS_GATT_SERVER)) {
+-            s_hdl =  gatt_cb.hdl_cfg.gatt_start_hdl;
+-            save_hdl = TRUE;
+-        } else if ((p_svc_uuid->len == LEN_UUID_16) && (p_svc_uuid->uu.uuid16 == UUID_SERVCLASS_GAP_SERVER)) {
+-            s_hdl = gatt_cb.hdl_cfg.gap_start_hdl;
+-            save_hdl = TRUE;
+-        } else {
+-            p_list = p_list_info->p_first;
++        p_list = p_list_info->p_first;
+ 
+-            if (p_list) {
+-                s_hdl = p_list->asgn_range.e_handle + 1;
+-            }
++        if (p_list) {
++            s_hdl = p_list->asgn_range.e_handle + 1;
++        }
+ 
+-            if (s_hdl < gatt_cb.hdl_cfg.app_start_hdl) {
++        if (s_hdl < gatt_cb.hdl_cfg.app_start_hdl) {
+ 
+-                s_hdl = gatt_cb.hdl_cfg.app_start_hdl;
+-            }
+-            save_hdl = TRUE;
++            s_hdl = gatt_cb.hdl_cfg.app_start_hdl;
+         }
++        save_hdl = TRUE;
+ 
+         /* check for space */
+         if (num_handles > (0xFFFF - s_hdl + 1)) {
+diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_db.c b/components/bt/host/bluedroid/stack/gatt/gatt_db.c
+index e84580bc95..d70bad485d 100644
+--- a/components/bt/host/bluedroid/stack/gatt/gatt_db.c
++++ b/components/bt/host/bluedroid/stack/gatt/gatt_db.c
+@@ -1251,8 +1251,8 @@ tGATT_STATUS gatts_write_attr_perm_check (tGATT_SVC_DB *p_db, UINT8 op_code,
+                             status = GATT_REQ_NOT_SUPPORTED;
+                             GATT_TRACE_ERROR( "gatts_write_attr_perm_check - GATT_REQ_NOT_SUPPORTED,handle:0x%04x",handle);
+                         } else if (len != max_size) { /* data does not match the required format */
+-                            status = GATT_INVALID_ATTR_LEN;
+-                            GATT_TRACE_ERROR( "gatts_write_attr_perm_check - GATT_INVALID_ATTR_LEN,handle:0x%04x",handle);
++                            //status = GATT_INVALID_ATTR_LEN;
++                            GATT_TRACE_DEBUG( "gatts_write_attr_perm_check - GATT_INVALID_ATTR_LEN,handle:0x%04x",handle);
+                         } else {
+                             status = GATT_SUCCESS;
+                         }
+diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_main.c b/components/bt/host/bluedroid/stack/gatt/gatt_main.c
+index dfce09a67f..ba333c3b69 100644
+--- a/components/bt/host/bluedroid/stack/gatt/gatt_main.c
++++ b/components/bt/host/bluedroid/stack/gatt/gatt_main.c
+@@ -145,7 +145,7 @@ void gatt_init (void)
+     gatt_cb.hdl_cfg.gap_start_hdl  = GATT_GAP_START_HANDLE;
+     gatt_cb.hdl_cfg.app_start_hdl  = GATT_APP_START_HANDLE;
+ #if (GATTS_INCLUDED == TRUE)
+-    gatt_profile_db_init();
++    //gatt_profile_db_init();
+ #endif  ///GATTS_INCLUDED == TRUE
+     //init local MTU size
+     gatt_default.local_mtu = GATT_MAX_MTU_SIZE;
+diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_utils.c b/components/bt/host/bluedroid/stack/gatt/gatt_utils.c
+index 621b246888..e785b35ef5 100644
+--- a/components/bt/host/bluedroid/stack/gatt/gatt_utils.c
++++ b/components/bt/host/bluedroid/stack/gatt/gatt_utils.c
+@@ -1369,8 +1369,8 @@ void gatt_rsp_timeout(TIMER_LIST_ENT *p_tle)
+         }
+     }
+ 
+-    GATT_TRACE_WARNING("gatt_rsp_timeout disconnecting...");
+-    gatt_disconnect (p_clcb->p_tcb);
++    GATT_TRACE_WARNING("HACK BYPASS: gatt_rsp_timeout disconnecting...");
++    //gatt_disconnect (p_clcb->p_tcb);
+ }
+ 
+ /*******************************************************************************
+diff --git a/components/bt/host/bluedroid/stack/gatt/include/gatt_int.h b/components/bt/host/bluedroid/stack/gatt/include/gatt_int.h
+index 1161da62b5..f69067da26 100644
+--- a/components/bt/host/bluedroid/stack/gatt/include/gatt_int.h
++++ b/components/bt/host/bluedroid/stack/gatt/include/gatt_int.h
+@@ -306,7 +306,7 @@ typedef UINT8 tGATT_CH_STATE;
+ 
+ #define GATT_GATT_START_HANDLE  1
+ #define GATT_GAP_START_HANDLE   20
+-#define GATT_APP_START_HANDLE   40
++#define GATT_APP_START_HANDLE   1
+ 
+ typedef struct hdl_cfg {
+     UINT16               gatt_start_hdl;
