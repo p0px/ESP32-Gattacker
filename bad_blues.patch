@@ -80,17 +80,15 @@ diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_db.c b/components/bt/h
 index e84580bc95..d70bad485d 100644
 --- a/components/bt/host/bluedroid/stack/gatt/gatt_db.c
 +++ b/components/bt/host/bluedroid/stack/gatt/gatt_db.c
-@@ -1251,8 +1251,8 @@ tGATT_STATUS gatts_write_attr_perm_check (tGATT_SVC_DB *p_db, UINT8 op_code,
+@@ -1257,7 +1257,7 @@ tGATT_STATUS gatts_write_attr_perm_check (tGATT_SVC_DB *p_db, UINT8 op_code,
                              status = GATT_REQ_NOT_SUPPORTED;
-                             GATT_TRACE_ERROR( "gatts_write_attr_perm_check - GATT_REQ_NOT_SUPPORTED,handle:0x%04x",handle);
+                             GATT_TRACE_ERROR("gatts_write_attr_perm_check - GATT_REQ_NOT_SUPPORTED,handle %04x,opcode %4x", handle, op_code);
                          } else if (len != max_size) { /* data does not match the required format */
 -                            status = GATT_INVALID_ATTR_LEN;
--                            GATT_TRACE_ERROR( "gatts_write_attr_perm_check - GATT_INVALID_ATTR_LEN,handle:0x%04x",handle);
 +                            //status = GATT_INVALID_ATTR_LEN;
-+                            GATT_TRACE_DEBUG( "gatts_write_attr_perm_check - GATT_INVALID_ATTR_LEN,handle:0x%04x",handle);
+                             GATT_TRACE_ERROR("gatts_write_attr_perm_check - GATT_INVALID_ATTR_LEN,handle %04x,op_code %04x,len %d,max_size %d", handle, op_code, len, max_size);
                          } else {
                              status = GATT_SUCCESS;
-                         }
 diff --git a/components/bt/host/bluedroid/stack/gatt/gatt_main.c b/components/bt/host/bluedroid/stack/gatt/gatt_main.c
 index dfce09a67f..ba333c3b69 100644
 --- a/components/bt/host/bluedroid/stack/gatt/gatt_main.c
