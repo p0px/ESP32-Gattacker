@@ -26,8 +26,8 @@ void LEDStrip::setup_leds() {
   led_strip_config_t strip_config = {
     .strip_gpio_num = LED_STRIP_BLINK_GPIO,
     .max_leds = LED_STRIP_LED_NUMBERS,
-    .led_pixel_format = LED_PIXEL_FORMAT_GRB,
-    .led_model = LED_MODEL_WS2812
+    .led_model = LED_MODEL_WS2812,
+    .color_component_format = LED_STRIP_COLOR_COMPONENT_FMT_GRB
   };
 
   led_strip_rmt_config_t rmt_config = {

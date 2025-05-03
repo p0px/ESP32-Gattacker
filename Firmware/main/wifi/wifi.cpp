@@ -2,9 +2,11 @@
 
 #define TAG "wifi"
 
-#if ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(5, 2, 1)
+#if ESP_IDF_VERSION > ESP_IDF_VERSION_VAL(5, 4, 0)
   #define ENABLE_CAPTIVE_DHCP_OPTION
 #endif
+
+//https://github.com/espressif/esp-idf/blob/38628f98b9000ded87827dccbd8a5a1827392cfb/examples/protocols/http_server/captive_portal/main/main.c
 
 #ifdef ENABLE_CAPTIVE_DHCP_OPTION
   /* Add DHCP option 114 to signal a captive portal */
