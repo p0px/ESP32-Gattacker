@@ -7,7 +7,7 @@ export const About = () => {
       <Typography variant='h3'>About</Typography>
       <Typography variant='body1'>
         Made with {'<3'} by p0px.<br/>
-        <Link href='https://gitlab.com/p0px/wabbt'>Project Link</Link>
+        <Link href='https://gitlab.com/p0px/esp32-gattacker'>Project Link</Link>
       </Typography>
     </>
   );
