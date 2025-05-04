@@ -1,6 +1,8 @@
 # ESP32-Gattacker
 
-A ESP32 powered Gattacker
+An ESP32 powered implementation of [Gattacker](https://github.com/securing/gattacker) for performing Bluetooth Low Energy MITM (Man-in-the-Middle) attacks.
+
+![UI](./Doc/img/ui_running.png)
 
 ## Install
 
@@ -43,11 +45,11 @@ Logging and information can be viewed over serial baud `115200`
 ## Compile
   * Install VSCode
   * Install ESP-IDF Extension
-  * Setup IDF and use version 5.1.4
-  * `cd ~/esp/v5.1.4/esp-idf/`
+  * Setup IDF and use version 5.4.1
+  * `cd ~/esp/v5.4.1/esp-idf/`
   * `git apply bad_blues.patch` - Apply bad blues patch to esp to get gatt attack to work properly
   * Open repo folder in VSCode
-  * Edit `Firmware/partitions.csv` if you dont have 16mb flash ESP
+  * Edit `Firmware/partitions.csv` if you want to change from default 4mb
   * In VSCode `Terminal -> Run Build Task`
   * Now you should be able to use 'flash' lightening symbol on bottom bar
   * After flash you can monitor using the button on bottom bar
