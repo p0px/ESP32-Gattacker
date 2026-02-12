@@ -12,6 +12,7 @@
 #include "ble/GattAttackApp.h"
 
 extern int num_clients;
+void ws_init(void);
 void msg_clients(std::string msg);
 void ws_on_close_handler(httpd_handle_t hd, int sockfd);
 esp_err_t ws_handler(httpd_req_t *req);

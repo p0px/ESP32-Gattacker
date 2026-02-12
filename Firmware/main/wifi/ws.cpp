@@ -22,19 +22,32 @@ struct ws_client_t {
 int num_clients = 0;
 ws_client_t *clients;
 
+static SemaphoreHandle_t ws_mutex = NULL;
+
+void ws_init(void) {
+  ws_mutex = xSemaphoreCreateMutex();
+}
+
 static void add_client(const ws_client_t *new_client) {
+  if (ws_mutex) xSemaphoreTake(ws_mutex, portMAX_DELAY);
+
   ws_client_t *new_clients = (ws_client_t *)realloc(clients, (num_clients + 1) * sizeof(ws_client_t));
   if (new_clients == NULL) {
     ESP_LOGE(TAG, "Adding client no mem");
+    if (ws_mutex) xSemaphoreGive(ws_mutex);
     return;
   }
 
   clients = new_clients;
   clients[num_clients] = *new_client;
   num_clients++;
+
+  if (ws_mutex) xSemaphoreGive(ws_mutex);
 }
 
 static void remove_client_by_fd(int fd) {
+  if (ws_mutex) xSemaphoreTake(ws_mutex, portMAX_DELAY);
+
   int found_index = -1;
   for (int i = 0; i < num_clients; i++) {
     if (clients[i].fd == fd) {
@@ -44,6 +57,7 @@ static void remove_client_by_fd(int fd) {
   }
 
   if (found_index == -1) {
+    if (ws_mutex) xSemaphoreGive(ws_mutex);
     return;
   }
 
@@ -62,6 +76,8 @@ static void remove_client_by_fd(int fd) {
     free(clients);
     clients = NULL;
   }
+
+  if (ws_mutex) xSemaphoreGive(ws_mutex);
 }
 
 void ws_on_close_handler(httpd_handle_t hd, int sockfd) {
@@ -89,6 +105,8 @@ static void ws_async_send(void *arg) {
 }
 
 void msg_clients(std::string msg) {
+  if (ws_mutex) xSemaphoreTake(ws_mutex, portMAX_DELAY);
+
   for (int i = 0; i < num_clients; i++) {
     ws_client_t cli = clients[i];
     struct async_resp_arg *resp_arg = (struct async_resp_arg *)malloc(sizeof(struct async_resp_arg));
@@ -114,6 +132,8 @@ void msg_clients(std::string msg) {
       free(resp_arg);
     }
   }
+
+  if (ws_mutex) xSemaphoreGive(ws_mutex);
 }
 
 esp_err_t ws_handler(httpd_req_t *req) {
@@ -278,6 +298,11 @@ esp_err_t ws_handler(httpd_req_t *req) {
 
             GattAttackApp::webEvent(&ps);
 
+            cJSON_Delete(root);
+            cJSON_Delete(res);
+            free(buf);
+            free(resp_arg); // No response sent, so we must free this manually
+
             return ESP_OK;
           } else {
             cJSON_AddBoolToObject(res, "success", false);
@@ -303,6 +328,8 @@ esp_err_t ws_handler(httpd_req_t *req) {
 
     if (resp_arg->res != NULL && httpd_queue_work(req->handle, ws_async_send, resp_arg) != ESP_OK) {
       free(resp_arg->res);
+      free(resp_arg);
+    } else if (resp_arg->res == NULL) {
       free(resp_arg);
     }
 

@@ -58,6 +58,5 @@ Logging and information can be viewed over serial baud `115200`
 ## Bugs / TODO
 * TODO
   * Random WIFI channel/Name
-  * Broke DNS for captive portal somewhere
 * Future TODO:
   - Replaying
