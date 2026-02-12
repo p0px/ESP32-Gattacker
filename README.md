@@ -36,7 +36,7 @@ Once you are connected you can go [http://1.3.3.7](http://1.3.3.7) to access the
 
 Go to the settings Icon on the left hand side of the webpage and edit your WiFi credentials to your liking. Make sure to click the reboot button after.
 
-Connect to the new network you just setup and head back [to the UI](http://1.3.3.7) to fully utilize your badge.
+Connect to the new network you just setup and head back [to the UI](http://1.3.3.7) to fully utilize your device.
 
 ### Serial
 
