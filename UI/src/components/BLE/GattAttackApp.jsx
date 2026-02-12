@@ -3,8 +3,13 @@ import { useState, useEffect } from 'react';
 import Grid from '@mui/material/Grid';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
+import FormGroup from '@mui/material/FormGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import Switch from '@mui/material/Switch';
+import Box from '@mui/material/Box';
 
 import { MitmPanel } from './MitmPanel';
+import { HookEditor } from './HookEditor';
 
 import { Device, CancelButton } from '../common';
 
@@ -59,6 +64,14 @@ export const GattAttackApp = () => {
         action: "scan",
       }));
     }
+  };
+
+  const toggleHookState = (e) => {
+    window.socket.send(JSON.stringify({
+      opt: 2, // or app.opt
+      action: 'enable_hooks',
+      enable: e.target.checked
+    }));
   };
 
   window.socketCallback = (data) => {
@@ -168,6 +181,32 @@ export const GattAttackApp = () => {
           <Typography variant='body1' sx={{ mb: 2 }}>
             Devices: {results.length}
           </Typography>
+
+          <Box sx={{ mb: 3 }}>
+            <FormGroup>
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={hooksEnabled}
+                    onChange={toggleHookState}
+                  />
+                }
+                label='Enable Hooks'
+              />
+            </FormGroup>
+            {hooksEnabled && (
+              <Grid container spacing={2}>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant='h6'>Read Hook</Typography>
+                  <HookEditor />
+                </Grid>
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Typography variant='h6'>Write Hook</Typography>
+                  <HookEditor hook='write' />
+                </Grid>
+              </Grid>
+            )}
+          </Box>
 
           <Grid container spacing={3}>
             {results.sort((a, b) => b.rssi - a.rssi).map((r) => (
