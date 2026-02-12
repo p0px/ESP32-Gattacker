@@ -30,6 +30,8 @@
 
     // set the DHCP option 114
     ESP_ERROR_CHECK(esp_netif_dhcps_option(netif, ESP_NETIF_OP_SET, ESP_NETIF_CAPTIVEPORTAL_URI, captiveportal_uri, strlen(captiveportal_uri)));
+
+    free(captiveportal_uri);
   }
 #endif
 
@@ -39,10 +41,6 @@ void wifi_init_softap(void) {
   esp_netif_t *ap_netif = esp_netif_create_default_wifi_ap();
 
   ESP_ERROR_CHECK(esp_netif_dhcps_stop(ap_netif));
-
-  #ifdef ENABLE_CAPTIVE_DHCP_OPTION
-    dhcp_set_captiveportal_url();
-  #endif
 
   wifi_init_config_t cfg = WIFI_INIT_CONFIG_DEFAULT();
   ESP_ERROR_CHECK(esp_wifi_init(&cfg));
@@ -73,6 +71,10 @@ void wifi_init_softap(void) {
   IP4_ADDR(&ip_info.gw, 1, 3, 3, 7);
   IP4_ADDR(&ip_info.netmask, 255, 255, 255, 0);
   ESP_ERROR_CHECK(esp_netif_set_ip_info(ap_netif, &ip_info));
+
+  #ifdef ENABLE_CAPTIVE_DHCP_OPTION
+    dhcp_set_captiveportal_url();
+  #endif
 
   // Start DHCP server
   ESP_ERROR_CHECK(esp_netif_dhcps_start(ap_netif));

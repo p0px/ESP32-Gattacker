@@ -171,6 +171,8 @@ esp_err_t start_rest_server() {
   httpd_config_t config = HTTPD_DEFAULT_CONFIG();
   config.close_fn = ws_on_close_handler;
   config.uri_match_fn = httpd_uri_match_wildcard;
+  config.lru_purge_enable = true;
+  config.max_open_sockets = 10;
   rest_context = (rest_server_context_t *)calloc(1, sizeof(rest_server_context_t));
 
   // main web server handler
