@@ -1,8 +1,8 @@
-#include "LEDStrip.h"
+
 #include "ble/GattAttack.h"
 #include "ble/GattAttackApp.h"
 
-extern LEDStrip* leds;
+
 extern GattAttackState gattAttackState;
 
 #define TAG "GATT Attack"
@@ -914,7 +914,7 @@ after_find_write:
         gattAttackState = GATT_ATTACK_STATE_RUNNING;
         GattAttackApp::sendState((int)gattAttackState);
         esp_ble_gap_start_advertising(&adv_params);
-        leds->blink(0, 0, 255);
+
       }
 
       break;
@@ -1047,11 +1047,11 @@ void client_event(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_ga
         gattAttackState = GATT_ATTACK_STATE_CLIENT_CONNECTED;
         GattAttackApp::sendState((int)gattAttackState);
         clone.target_client_conn_id = param->connect.conn_id;
-        leds->blink(0, 0, 255);
+
       } else {
         send_output("Victim Device Connected", false);
         clone.victim_client_conn_id = param->connect.conn_id;
-        leds->blink(255, 0, 0);
+
       }
 
       esp_err_t mtu_ret = esp_ble_gattc_send_mtu_req(gattc_if, param->connect.conn_id);
@@ -1104,7 +1104,7 @@ void client_event(esp_gattc_cb_event_t event, esp_gatt_if_t gattc_if, esp_ble_ga
         }
       } else {
         send_output("Lost Victim Connection", false);
-        leds->blink(255, 0, 0);
+
       }
 
       break;
@@ -1730,7 +1730,7 @@ void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
                                               ESP_BLE_AD_TYPE_NAME_CMPL,
                                               &adv_name_len);
           if (memcmp(clone.target, param->scan_rst.bda, sizeof(esp_bd_addr_t)) == 0) {
-            leds->blink(0, 0, 255);
+
             memcpy(clone.target_bda, param->scan_rst.bda, sizeof(esp_bd_addr_t));
             ESP_LOGI(TAG, "Device: ");
             esp_log_buffer_char(TAG, adv_name, adv_name_len);
@@ -1769,8 +1769,7 @@ void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
                 }
               }
 
-              leds->blink(0, 0, 255, 2, 50);
-              leds->set_color(0, 0, 255);
+
               send_output("Connecting to target", false);
               gattAttackState = GATT_ATTACK_STATE_CLIENT_CONNECTING;
               GattAttackApp::sendState((int)gattAttackState);

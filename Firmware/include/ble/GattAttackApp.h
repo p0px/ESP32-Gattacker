@@ -7,7 +7,7 @@
 #include "cJSON.h"
 
 #include "settings.h"
-#include "LEDStrip.h"
+
 #include "ble/ble.h"
 #include "ble/GattAttack.h"
 #include "wifi/ws.h"
