@@ -8,6 +8,7 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import Switch from '@mui/material/Switch';
 import Box from '@mui/material/Box';
 
+import TextField from '@mui/material/TextField';
 import { MitmPanel } from './MitmPanel';
 import { HookEditor } from './HookEditor';
 
@@ -30,6 +31,7 @@ export const GattAttackApp = () => {
   const [target, setTarget] = useState(false);
   const [messages, setMessages] = useState([]);
   const [results, setResults] = useState([]);
+  const [manualMac, setManualMac] = useState('');
 
   const stop = () => {
     if (window.socket?.readyState === 1) {
@@ -38,7 +40,7 @@ export const GattAttackApp = () => {
         setResults([]);
         window.socket.send(JSON.stringify({
           opt: app.opt,
-          action: "stop"
+          action: 'stop'
         }));
       }
     }
@@ -50,8 +52,21 @@ export const GattAttackApp = () => {
         setTarget(dev);
         window.socket.send(JSON.stringify({
           opt: app.opt,
-          action: "start",
+          action: 'start',
           id: dev.id,
+        }));
+      }
+    }
+  };
+
+  const startManual = () => {
+    if (window.socket?.readyState === 1) {
+      if (confirm(`Connect to ${manualMac}?`)) {
+        setTarget({ mac: manualMac, name: 'Manual Device' });
+        window.socket.send(JSON.stringify({
+          opt: app.opt,
+          action: 'start',
+          mac: manualMac,
         }));
       }
     }
@@ -61,7 +76,7 @@ export const GattAttackApp = () => {
     if (window.socket?.readyState === 1) {
       window.socket.send(JSON.stringify({
         opt: app.opt,
-        action: "scan",
+        action: 'scan',
       }));
     }
   };
@@ -90,7 +105,7 @@ export const GattAttackApp = () => {
       if (data.state === 2 && results.length < 1) {
         window.socket.send(JSON.stringify({
           opt: app.opt,
-          action: "results",
+          action: 'results',
         }));
       }
     }
@@ -98,7 +113,7 @@ export const GattAttackApp = () => {
     if (data.scan_done) {
       window.socket.send(JSON.stringify({
         opt: app.opt,
-        action: "results",
+        action: 'results',
       }));
     }
 
@@ -121,7 +136,7 @@ export const GattAttackApp = () => {
       const hook_ret = window.hook_read(data);
       window.socket.send(JSON.stringify({
         opt: app.opt,
-        action: "hookret",
+        action: 'hookret',
         hook_ret,
       }));
     }
@@ -130,7 +145,7 @@ export const GattAttackApp = () => {
       const hook_ret = window.hook_write(data);
       window.socket.send(JSON.stringify({
         opt: app.opt,
-        action: "hookret",
+        action: 'hookret',
         hook_ret,
       }));
     }
@@ -141,7 +156,7 @@ export const GattAttackApp = () => {
       if (window.socket?.readyState === 1) {
         window.socket.send(JSON.stringify({
           opt: app.opt,
-          action: "status",
+          action: 'status',
         }));
       } else {
         setTimeout(setup, 2000);
@@ -158,14 +173,38 @@ export const GattAttackApp = () => {
   return (
     <>
       {state === 0 && (
-        <Button
-          type='submit'
-          variant='contained'
-          color='primary'
-          onClick={scanDevices}
-        >
-          Scan
-        </Button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, maxWidth: 400 }}>
+          <Button
+            type='submit'
+            variant='contained'
+            color='primary'
+            onClick={scanDevices}
+          >
+            Scan
+          </Button>
+
+          <Typography variant='body1' sx={{ textAlign: 'center' }}>OR</Typography>
+
+          <Box sx={{ display: 'flex', gap: 1 }}>
+            <TextField
+              label='MAC Address'
+              variant='outlined'
+              size='small'
+              value={manualMac}
+              onChange={(e) => setManualMac(e.target.value)}
+              placeholder='AA:BB:CC:DD:EE:FF'
+              fullWidth
+            />
+            <Button
+              variant='contained'
+              color='primary'
+              onClick={startManual}
+              disabled={manualMac.length < 17}
+            >
+              Connect
+            </Button>
+          </Box>
+        </Box>
       )}
 
       {state === 1 && (
