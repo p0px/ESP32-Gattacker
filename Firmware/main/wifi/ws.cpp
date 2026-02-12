@@ -247,6 +247,10 @@ esp_err_t ws_handler(httpd_req_t *req) {
           cJSON *item = cJSON_GetObjectItem(root, "action");
           if (cJSON_IsString(item) && item->valuestring != NULL) {
             GattAttackWebEventParams ps;
+            ps.id = -1;
+            ps.mac = NULL;
+            ps.hook_ret = NULL; // initialize other fields for safety
+            ps.enable = false;
 
             ps.action = item->valuestring;
 
@@ -263,6 +267,13 @@ esp_err_t ws_handler(httpd_req_t *req) {
             cJSON *hook_enable = cJSON_GetObjectItem(root, "enable");
             if (cJSON_IsBool(hook_enable)) {
               ps.enable = cJSON_IsTrue(hook_enable);
+            }
+
+            cJSON *mac = cJSON_GetObjectItem(root, "mac");
+            if (cJSON_IsString(mac) && mac->valuestring != NULL) {
+              ps.mac = mac->valuestring;
+            } else {
+              ps.mac = NULL;
             }
 
             GattAttackApp::webEvent(&ps);

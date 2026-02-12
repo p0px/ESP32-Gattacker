@@ -25,7 +25,7 @@ enum GattAttackState {
 };
 
 struct GattAttackParams {
-  uint8_t *target;
+  esp_bd_addr_t target;
 };
 
 bool should_run_hooks();
@@ -37,6 +37,7 @@ struct GattAttackWebEventParams {
   int id;
   const char *hook_ret;
   bool enable;
+  const char *mac;
 };
 
 class GattAttackApp {

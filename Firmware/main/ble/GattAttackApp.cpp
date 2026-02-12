@@ -128,7 +128,9 @@ void GattAttackApp::stop_attack() {
 };
 
 void GattAttackApp::start_attack(esp_bd_addr_t target) {
-  GattAttackParams* params = new GattAttackParams{target};
+  GattAttackParams* params = new GattAttackParams();
+  memcpy(params->target, target, sizeof(esp_bd_addr_t));
+
   esp_err_t ret = xTaskCreate(&GattAttackApp::atk_task, "gatk", 20000, params, 0, &gattTaskHandle);
   if (ret == ESP_FAIL) {
     ESP_LOGE(TAG, "gatk task err: %s", esp_err_to_name(ret));
@@ -151,7 +153,18 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
   }
 
   if (strcmp(ps->action, "start") == 0) {
-
+    if (ps->mac != NULL) {
+      esp_bd_addr_t target;
+      int values[6];
+      if (sscanf(ps->mac, "%x:%x:%x:%x:%x:%x", 
+                 &values[0], &values[1], &values[2], 
+                 &values[3], &values[4], &values[5]) == 6) {
+        for( int i = 0; i < 6; i++ ) {
+            target[i] = (uint8_t)values[i];
+        }
+        return GattAttackApp::start_attack(target);
+      }
+    }
 
     // Validate ID sent
     if (ps->id < 0 || ps->id > device_count) {
