@@ -10,7 +10,7 @@ bool hooks_enabled = false;
 bool hook_block = false;
 char *hook_ret = NULL;
 
-extern LEDStrip* leds;
+
 TaskHandle_t gattTaskHandle = NULL;
 GattAttackState gattAttackState = GATT_ATTACK_STATE_HOME;
 
@@ -151,7 +151,7 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
   }
 
   if (strcmp(ps->action, "start") == 0) {
-    leds->stop_animations();
+
 
     // Validate ID sent
     if (ps->id < 0 || ps->id > device_count) {
@@ -174,7 +174,7 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
 
   if (strcmp(ps->action, "stop") == 0) {
     GattAttackApp::stop_attack();
-    return leds->run_animations();
+
   }
 
   if (strcmp(ps->action, "scan") == 0) {

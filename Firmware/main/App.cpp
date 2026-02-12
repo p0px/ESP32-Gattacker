@@ -2,13 +2,12 @@
 
 #define TAG "App"
 
-LEDStrip* leds;
+
 
 void setup() {
   read_settings();
 
-  leds = new LEDStrip();
-  leds->run_animations();
+
 
   wifi_init_softap();
   start_rest_server();
