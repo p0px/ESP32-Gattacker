@@ -128,7 +128,7 @@ export const Layout = () => {
         }
       };
 
-      socket.onmessage = (message) => { 
+      socket.onmessage = (message) => {
         console.log('Message from server ', JSON.parse(message.data));
         const res = JSON.parse(message.data);
 
@@ -168,7 +168,7 @@ export const Layout = () => {
         }, 500);
       };
 
-      window.socket = socket;  
+      window.socket = socket;
     }
   };
 
@@ -211,7 +211,7 @@ export const Layout = () => {
         <List>
           {['Home', 'Settings', 'About'].map((text, i) => (
             <React.Fragment key={text}>
-              { i === 1 && <Divider />}
+              {i === 1 && <Divider />}
               <ListItem key={text} disablePadding sx={{ display: 'block' }}>
                 <ListItemButton
                   selected={window.location.pathname.split('/')[1] === `${text.toLowerCase()}`}
@@ -244,7 +244,7 @@ export const Layout = () => {
         <DrawerHeader />
         <Container disableGutters maxWidth={false}>
           <Grid container>
-            <Grid item xs={12}>
+            <Grid size={12}>
               {showAlert && (
                 <Alert
                   severity={alert}

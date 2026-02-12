@@ -68,15 +68,15 @@ const HookEditor = ({
 }) => {
   const [error, setError] = useState(false);
   const [code, setCode] = useState(window[`hook_${hook}`].toString());
-  
+
   const handleChange = (e) => {
     setCode(e.target.value);
     try {
-      const test = eval(`(${e.target.value})`)({ uuid: 'test', 'value': '01020304'});
+      const test = eval(`(${e.target.value})`)({ uuid: 'test', 'value': '01020304' });
       if (testHook(test)) {
         window[`hook_${hook}`] = eval(`(${e.target.value})`);
       }
-      
+
       setError(false);
     } catch (err) {
       setError(`Invalid function ${err}`);
@@ -88,7 +88,7 @@ const HookEditor = ({
       <CardContent sx={{ p: 2 }}>
         {error && <Typography>{error}</Typography>}
         <div style={{ display: 'grid', gap: '1rem' }}>
-          <textarea 
+          <textarea
             value={code}
             onChange={handleChange}
             style={{
@@ -113,7 +113,7 @@ export const MitmPanel = memo(({
   hooksEnabled = false,
 }) => (
   <Grid container spacing={2}>
-    <Grid item xs={12} lg={8}>
+    <Grid size={{ xs: 12, lg: 8 }}>
       <Box display='flex' alignItems='center' gap={1}>
         <Typography variant='h6'>Messages</Typography>
         <Button
@@ -133,7 +133,7 @@ export const MitmPanel = memo(({
         <CardContent>
           {messages.length > 0 && (
             <section id='messages'>
-              {messages.map((m, i) =>(
+              {messages.map((m, i) => (
                 <div key={i}>{m.msg}</div>
               ))}
             </section>
@@ -141,13 +141,13 @@ export const MitmPanel = memo(({
         </CardContent>
       </Card>
     </Grid>
-    <Grid item xs={12} lg={4}>
+    <Grid size={{ xs: 12, lg: 4 }}>
       <Typography variant='h6'>Target</Typography>
       <Card>
         <CardContent>
-          Mac: {target.mac}<br/>
-          {target.name?.length > 0 && <>Name: {target.name}<br/></>}
-          RSSI: {target.rssi}<br/>
+          Mac: {target.mac}<br />
+          {target.name?.length > 0 && <>Name: {target.name}<br /></>}
+          RSSI: {target.rssi}<br />
           <FormGroup>
             <FormControlLabel
               label='Enable Hooks'
@@ -166,7 +166,7 @@ export const MitmPanel = memo(({
         <>
           <Typography variant='h6'>Read Hook</Typography>
           <HookEditor />
-        
+
           <Typography variant='h6'>Write Hook</Typography>
           <HookEditor hook='write' />
         </>
