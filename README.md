@@ -45,8 +45,8 @@ Logging and information can be viewed over serial baud `115200`
 ## Compile
   * Install VSCode
   * Install ESP-IDF Extension
-  * Setup IDF and use version 5.4.1
-  * `cd ~/esp/v5.4.1/esp-idf/`
+  * Setup IDF and use version 5.5.2
+  * `cd ~/.espressif/v5.5.2/esp-idf/`
   * `git apply bad_blues.patch` - Apply bad blues patch to esp to get gatt attack to work properly
   * Open repo folder in VSCode
   * Edit `Firmware/partitions.csv` if you want to change from default 4mb
