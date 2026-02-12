@@ -171,7 +171,7 @@ export const GattAttackApp = () => {
 
           <Grid container spacing={3}>
             {results.sort((a, b) => b.rssi - a.rssi).map((r) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={r.id}>
+              <Grid size={{ xs: 12, sm: 6, md: 4, lg: 3 }} key={r.id}>
                 <Device
                   dev={r}
                   onClick={() => start(r)}
