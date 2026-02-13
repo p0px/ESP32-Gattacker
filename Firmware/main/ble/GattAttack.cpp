@@ -232,12 +232,18 @@ void add_descriptor(char_t *character, const desc_t *new_desc) {
  * state.
  */
 void free_clone() {
+  if (clone.services == NULL) return;
+
   for (size_t i = 0; i < clone.num_services; i++) {
     // Free all characteristics and their descriptors
-    for (size_t j = 0; clone.services[i].chars != NULL && clone.services[i].chars[j].descs != NULL; j++) {
-      free(clone.services[i].chars[j].descs);
+    if (clone.services[i].chars != NULL) {
+      for (size_t j = 0; j < clone.services[i].num_chars; j++) {
+        if (clone.services[i].chars[j].descs != NULL) {
+          free(clone.services[i].chars[j].descs);
+        }
+      }
+      free(clone.services[i].chars);
     }
-    free(clone.services[i].chars);
   }
   
   free(clone.services);
@@ -420,9 +426,11 @@ void prep_write_event_env(esp_ble_gatts_cb_param_t *param){
    * to see the Reliable Write ever do
    * anything other than offset 0.
    */
-  memcpy(prepare_write_env.prepare_buf + param->write.offset,
-        param->write.value,
-        param->write.len);
+  if (param->write.offset + param->write.len <= 2048) {
+    memcpy(prepare_write_env.prepare_buf + param->write.offset,
+          param->write.value,
+          param->write.len);
+  }
   
   if (param->write.offset == 0) {
     prepare_write_env.prepare_len = 0;
@@ -612,12 +620,27 @@ after_find_read:
        * The response is handled in the client.
        */
       int outSize = 300 + param->write.len;
-      char out[outSize];
-      char uuid[38];
+      char *out = (char*)malloc(outSize);
+      if (!out) {
+        ESP_LOGE(TAG, "Failed to allocate memory for out buffer");
+        return;
+      }
+
+      if (param->write.is_prep) {
+        prep_write_event_env(param);
+        free(out);
+        break;
+      }
+      char uuid[38] = {0};
       bool isDescriptor = handle_is_descriptor(param->write.handle);
       uint16_t write_len = param->write.len;
-      uint8_t *write_value = (uint8_t*)malloc(write_len);
-      memcpy(write_value, param->write.value, write_len);
+      uint8_t *write_value = NULL;
+      if (write_len > 0) {
+        write_value = (uint8_t*)malloc(write_len);
+        if (write_value) {
+          memcpy(write_value, param->write.value, write_len);
+        }
+      }
       clone.server_conn_id = param->write.conn_id;
       clone.server_trans_id = param->write.trans_id;
       clone.server_last_write_needs_rsp = param->write.need_rsp;
@@ -626,11 +649,6 @@ after_find_read:
       esp_gatt_write_type_t write_type = param->write.need_rsp 
         ? ESP_GATT_WRITE_TYPE_RSP
         : ESP_GATT_WRITE_TYPE_NO_RSP;
-
-      if (param->write.is_prep) {
-        prep_write_event_env(param);
-        break;
-      }
 
       // Handle Descriptor Notfiy/Indicate
       if (isDescriptor && param->write.len == 2) {
@@ -690,16 +708,20 @@ after_find_read:
 
           uint8_t *new_bytes = hex_string_to_bytes(hex_value, &write_len);
 
-          free(write_value);
-          write_value = (uint8_t*)malloc((size_t)write_len);
-          if (!write_value) {
-            ESP_LOGE(TAG, "Failed to allocate memory for write_value");
-            free(new_bytes);
-            return;
-          }
+          if (new_bytes) {
+            free(write_value);
+            write_value = (uint8_t*)malloc((size_t)write_len);
+            if (!write_value) {
+              ESP_LOGE(TAG, "Failed to allocate memory for write_value");
+              free(new_bytes);
+              return;
+            }
 
-          memcpy(write_value, new_bytes, write_len);
-          free(new_bytes);
+            memcpy(write_value, new_bytes, write_len);
+            free(new_bytes);
+          } else {
+            ESP_LOGE(TAG, "hex_string_to_bytes returned NULL");
+          }
         }
       }
 
@@ -743,6 +765,7 @@ after_find_read:
         }
       }
 
+      free(out);
       free(hex_value);
 
       // Write to cache
@@ -1751,7 +1774,9 @@ void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param) {
               connecting = true;
               esp_ble_gap_stop_scanning();
 
-              esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name((const char *)clone.target);
+              char device_name[20];
+              snprintf(device_name, sizeof(device_name), "%02X:%02X:%02X:%02X:%02X:%02X", clone.target[0], clone.target[1], clone.target[2], clone.target[3], clone.target[4], clone.target[5]);
+              esp_err_t set_dev_name_ret = esp_ble_gap_set_device_name(device_name);
               if (set_dev_name_ret){
                 ESP_LOGE(TAG, "set device name failed, error code = %x", set_dev_name_ret);
               }
@@ -1849,6 +1874,8 @@ void stop_gatt_attack() {
   ret = esp_ble_gattc_close(clone.gattc_if, clone.target_client_conn_id);
   ret = esp_ble_gatts_close(clone.gatts_if, clone.server_conn_id);
 
+  free_clone();
+
   for (size_t i = 0; i < clone.num_services; i++) {
     ret = esp_ble_gatts_stop_service(clone.services[i].service_handle);
     ret = esp_ble_gatts_delete_service(clone.services[i].service_handle);
@@ -1881,7 +1908,7 @@ void stop_gatt_attack() {
 void start_gatt_attack(uint8_t *target) {
   esp_err_t ret;
 
-  clone.target = target;
+  memcpy(clone.target, target, sizeof(esp_bd_addr_t));
 
   ESP_ERROR_CHECK(esp_iface_mac_addr_set(target, ESP_MAC_BT));
 

@@ -226,7 +226,10 @@ esp_err_t ws_handler(httpd_req_t *req) {
               break;
             }
 
-            if (strncpy(WIFI_SSID, ssid->valuestring, 32) != 0 && strncpy(WIFI_PASS, pass->valuestring, 32) != 0) {
+            if (strncpy(WIFI_SSID, ssid->valuestring, sizeof(WIFI_SSID) - 1) != 0
+                && strncpy(WIFI_PASS, pass->valuestring, sizeof(WIFI_PASS) - 1) != 0) {
+              WIFI_SSID[sizeof(WIFI_SSID) - 1] = '\0';
+              WIFI_PASS[sizeof(WIFI_PASS) - 1] = '\0';
               esp_err_t ret = write_string_to_nvs("wifi_ssid", ssid->valuestring);
               ret = write_string_to_nvs("wifi_pass", pass->valuestring);
               if (ret != ESP_OK) {

@@ -54,7 +54,7 @@ struct service_t {
 };
 
 struct clone_t {
-  uint8_t *target;
+  esp_bd_addr_t target;
   uint16_t gatts_if;
   uint16_t gattc_if;
 
