@@ -121,7 +121,7 @@ static void esp_gap_cb(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *par
                                                       ESP_BLE_AD_TYPE_NAME_CMPL,
                                                       &adv_name_len);
           char name[ESP_BLE_ADV_DATA_LEN_MAX + 1] = "";
-          if (adv_name && adv_name_len > 0) {
+          if (adv_name && adv_name_len > 0 && adv_name_len < sizeof(name)) {
             strncpy(name, (char *)adv_name, adv_name_len);
             name[adv_name_len] = '\0';
           }

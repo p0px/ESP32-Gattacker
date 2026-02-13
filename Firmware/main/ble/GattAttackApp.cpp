@@ -90,6 +90,9 @@ void GattAttackApp::sendState(int state) {
 };
 
 void GattAttackApp::scan() {
+  if (gattAttackState == GATT_ATTACK_STATE_SCANNING) {
+    return;
+  }
   gattAttackState = GATT_ATTACK_STATE_SCANNING;
   GattAttackApp::sendState((int)gattAttackState);
   
@@ -142,6 +145,7 @@ void GattAttackApp::start_attack(esp_bd_addr_t target) {
 void GattAttackApp::atk_task(void *taskParams) {
   GattAttackParams *params = static_cast<GattAttackParams*>(taskParams);
   start_gatt_attack(params->target);
+  delete params;
   while(1) {
     vTaskDelay(20 / portTICK_PERIOD_MS);
   }
@@ -160,7 +164,7 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
                  &values[0], &values[1], &values[2], 
                  &values[3], &values[4], &values[5]) == 6) {
         for( int i = 0; i < 6; i++ ) {
-            target[i] = (uint8_t)values[i];
+          target[i] = (uint8_t)values[i];
         }
         return GattAttackApp::start_attack(target);
       }
@@ -176,8 +180,10 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
       char *json_string = cJSON_Print(root);
       
       // Send json and free
-      msg_clients(json_string);
-      free(json_string);
+      if (json_string) {
+        msg_clients(json_string);
+        free(json_string);
+      }
       cJSON_Delete(root);
       return;
     }
@@ -187,7 +193,6 @@ void GattAttackApp::webEvent(GattAttackWebEventParams *ps) {
 
   if (strcmp(ps->action, "stop") == 0) {
     GattAttackApp::stop_attack();
-
   }
 
   if (strcmp(ps->action, "scan") == 0) {
