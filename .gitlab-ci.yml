@@ -1,0 +1,38 @@
+stages:
+  - build
+  - release
+
+variables:
+  GIT_STRATEGY: fetch
+  IDF_TARGET: esp32s3
+
+build:
+  stage: build
+  image: espressif/idf:v5.5.2
+  script:
+    - cp bad_blues.patch $IDF_PATH/
+    - cd $IDF_PATH
+    - git apply bad_blues.patch
+    - cd $CI_PROJECT_DIR/Firmware
+    - idf.py build
+    - mv build/esp-gattacker-*.bin $CI_PROJECT_DIR/
+  artifacts:
+    paths:
+      - esp-gattacker-*.bin
+    expire_in: 1 week
+
+release:
+  stage: release
+  image: registry.gitlab.com/gitlab-org/release-cli:latest
+  rules:
+    - if: $CI_COMMIT_TAG
+  script:
+    - echo "Creating release $CI_COMMIT_TAG"
+  release:
+    name: "Release $CI_COMMIT_TAG"
+    description: "Created using the release-cli"
+    tag_name: "$CI_COMMIT_TAG"
+    assets:
+      links:
+        - name: "esp-gattacker-${CI_COMMIT_TAG}.bin"
+          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/esp-gattacker-${CI_COMMIT_TAG}.bin"
