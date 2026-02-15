@@ -35,4 +35,4 @@ release:
     assets:
       links:
         - name: "esp-gattacker-${CI_COMMIT_TAG}.bin"
-          url: "${CI_PROJECT_URL}/-/jobs/${CI_JOB_ID}/artifacts/file/esp-gattacker-${CI_COMMIT_TAG}.bin"
+          url: "${CI_PROJECT_URL}/-/jobs/artifacts/${CI_COMMIT_TAG}/raw/esp-gattacker-${CI_COMMIT_TAG}.bin?job=build"
