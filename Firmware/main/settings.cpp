@@ -4,10 +4,11 @@
 #include "nvs.h"
 
 #include "settings.h"
+#include "version.h"
 
 #define TAG "settings"
 
-const char* version = "v0.3.4";
+const char* version = PROJECT_VERSION;
 
 const char* BASE_PATH = "/littlefs";
 
