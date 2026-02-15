@@ -8,15 +8,17 @@ An ESP32 powered implementation of [Gattacker](https://github.com/securing/gatta
 
 Assuming you have an ESP32-S3 with at least 4mb of flash:
 
-The easiest way to install and update will be to get the files from the `Firmware/build/` folder and flash with the following command:
+1. Download the latest release binary `esp-gattacker-vX.X.X.bin` from the [GitLab Releases Page](https://gitlab.com/p0px/esp32-gattacker/-/releases/permalink/latest).
+2. Flash the binary using `esptool.py`:
 
+```bash
+esptool.py -p (PORT) -b 460800 write_flash 0x0 esp-gattacker-vX.X.X.bin
 ```
-esptool.py -p (PORT) -b 460800 --before default_reset --after hard_reset --chip esp32s3  write_flash --flash_mode dio --flash_size detect --flash_freq 80m 0x0 Firmware/build/bootloader/bootloader.bin 0x8000 Firmware/build/partition_table/partition-table.bin 0xe000 Firmware/build/ota_data_initial.bin 0x10000 Firmware/build/gattacker.bin 0x390000 Firmware/build/spiffs.bin
-```
 
-Be sure to replace **PORT**
+> [!WARNING]
+> Supports ESP32-S3. This command **will overwrite** your NVS partition, meaning any saved WiFi credentials or settings will be lost.
 
-This firmware should support ESP32-C3, ESP32-C2, ESP32-H2 as well yet there are no builds for those yet in this repo.
+Be sure to replace `(PORT)` with your actual serial port (e.g., `/dev/ttyUSB0` or `COM3`) and `esp-gattacker-vX.X.X.bin` with the actual filename.
 
 ## Instructions
 ### Connect to WiFi
